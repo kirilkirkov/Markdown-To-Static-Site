@@ -1,0 +1,12 @@
+{
+    "name": "kirilkirkov/markdown-to-static-site",
+    "description": "A simple Markdown to static site generator",
+    "require": {
+        "erusev/parsedown": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "MarkdownToStaticSite\\": "src/"
+        }
+    }
+}
