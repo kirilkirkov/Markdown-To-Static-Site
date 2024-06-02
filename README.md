@@ -19,7 +19,7 @@ A simple PHP tool to generate static sites from Markdown files.
 
 <p>Plugins can be created in the plugins directory and added to config.php.</p>
 
-### How to run the project
+## How to run the project
 1. Clone the repository and install the dependencies
    ```bash
    git clone https://github.com/kirilkirkov/Markdown-To-Static-Site.git
