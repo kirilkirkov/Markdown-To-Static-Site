@@ -7,30 +7,24 @@ use MarkdownToStaticSite\Util\MarkdownParser;
 class SiteGenerator
 {
     private MarkdownParser $parser;
-    private string $contentDir;
-    private string $outputDir;
-    private string $themeDir;
-    private array $plugins = [];
+    private array $config;
 
-    public function __construct(string $contentDir, string $outputDir, string $themeDir, array $plugins = [])
+    public function __construct(array $config = [])
     {
         $this->parser = new MarkdownParser();
-        $this->contentDir = $contentDir;
-        $this->outputDir = $outputDir;
-        $this->themeDir = $themeDir;
-        $this->plugins = $plugins;
+        $this->config = $config;
     }
 
     public function generate()
     {
         $this->copyStaticResources();
-        $files = glob($this->contentDir . '/*.md');
+        $files = glob($this->config['contentDir'] . '/*.md');
 
         foreach ($files as $file) {
             $markdown = file_get_contents($file);
             $html = $this->parser->parse($markdown);
             $html = $this->applyPlugins($html);
-            $outputFile = $this->outputDir . '/' . basename($file, '.md') . '.html';
+            $outputFile = $this->config['outputDir'] . '/' . basename($file, '.md') . '.html';
             $this->render($html, $outputFile);
         }
     }
@@ -38,14 +32,15 @@ class SiteGenerator
     private function render(string $content, string $outputFile)
     {
         ob_start();
-        include $this->themeDir . '/template.php';
+        include $this->config['themeDir'] . '/template.php';
         $renderedContent = ob_get_clean();
         file_put_contents($outputFile, $renderedContent);
     }
 
     private function applyPlugins(string $content): string
     {
-        foreach ($this->plugins as $plugin) {
+        $plugins = array_map(fn($pluginClass) => new $pluginClass(), $this->config['plugins']);
+        foreach ($plugins as $plugin) {
             $content = $plugin->process($content);
         }
         return $content;
@@ -53,8 +48,8 @@ class SiteGenerator
 
     private function copyStaticResources()
     {
-        $source = $this->themeDir . '/assets';
-        $destination = $this->outputDir . '/assets';
+        $source = $this->config['themeDir'] . '/assets';
+        $destination = $this->config['outputDir'] . '/assets';
 
         if (!is_dir($source)) {
             echo "Source directory does not exist: $source\n";
